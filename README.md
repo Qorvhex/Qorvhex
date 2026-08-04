@@ -50,7 +50,7 @@ $ cat motto.txt
 | Layer | Weapons |
 |:--|:--|
 | **Runtime** | Node.js, Cloudflare Workers, Bun |
-| **Languages** | JavaScript, TypeScript, Python, Bash |
+| **Languages** | JavaScript, Python, Bash |
 | **Data** | D1, SQLite, MySQL, KV, Redis |
 | **Ops** | Git, Docker, Linux, CI/CD |
 | **Dark Arts** | code obfuscation, reverse engineering, bot automation |
