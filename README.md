@@ -38,13 +38,10 @@ $ cat motto.txt
 <div align="center">
 
 ![JavaScript](https://img.shields.io/badge/JavaScript-000?style=for-the-badge&logo=javascript&logoColor=F7DF1E)
-![TypeScript](https://img.shields.io/badge/TypeScript-000?style=for-the-badge&logo=typescript&logoColor=3178C6)
 ![Python](https://img.shields.io/badge/Python-000?style=for-the-badge&logo=python&logoColor=3776AB)
 ![Node.js](https://img.shields.io/badge/Node.js-000?style=for-the-badge&logo=nodedotjs&logoColor=5FA04E)
 ![Cloudflare Workers](https://img.shields.io/badge/Cloudflare_Workers-000?style=for-the-badge&logo=cloudflare&logoColor=F38020)
 ![SQLite](https://img.shields.io/badge/SQLite_%2F_D1-000?style=for-the-badge&logo=sqlite&logoColor=003B57)
-![Linux](https://img.shields.io/badge/Linux-000?style=for-the-badge&logo=linux&logoColor=FCC624)
-![Docker](https://img.shields.io/badge/Docker-000?style=for-the-badge&logo=docker&logoColor=2496ED)
 ![Git](https://img.shields.io/badge/Git-000?style=for-the-badge&logo=git&logoColor=F05032)
 ![Telegram](https://img.shields.io/badge/Telegram_Bots-000?style=for-the-badge&logo=telegram&logoColor=26A5E4)
 
@@ -80,8 +77,6 @@ $ cat motto.txt
 <img src="https://streak-stats.demolab.com?user=Qorvhex&theme=chartreuse-dark&hide_border=true&background=0d1117&ring=00ff9f&fire=8b5cf6&currStreakLabel=00ff9f" alt="streak" />
 
 <img src="https://github-readme-activity-graph.vercel.app/graph?username=Qorvhex&theme=react-dark&bg_color=0d1117&color=00ff9f&line=8b5cf6&point=ffffff&hide_border=true&area=true" alt="activity graph" />
-
-<img src="https://raw.githubusercontent.com/Qorvhex/Qorvhex/output/github-contribution-grid-snake-dark.svg" alt="snake" />
 
 </div>
 
