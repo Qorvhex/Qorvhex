@@ -1,0 +1,27 @@
+name: GitHub Readme Streak Stats
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # اجرای خودکار هر روز
+  workflow_dispatch: # امکان اجرای دستی
+
+permissions:
+  contents: write
+
+jobs:
+  update-stats:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: GitHub Readme Streak Stats Action
+        uses: DenverCoder1/github-readme-streak-stats@v1.7.0
+        with:
+          options: "user=Qorvhex&theme=chartreuse-dark&hide_border=true&background=0d1117&ring=00ff9f&fire=8b5cf6&currStreakLabel=00ff9f"
+          path: assets/streak-stats.svg # مسیر ذخیره‌سازی در پوشه assets
+
+      - name: Commit & Push Changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: update streak stats in assets"
