@@ -1,0 +1,1361 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Floating Space Loaders</title>
+  <script>console.warn = () => {};</script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      cursor: none !important;
+    }
+
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #090a0f;
+    }
+
+    /* ==========================================
+       نشانگر موس اختصاصی سایبرپانک Core + Hex
+       ========================================== */
+    .qorvhex-cursor-dot {
+      width: 8px;
+      height: 8px;
+      background: #00f3ff;
+      border-radius: 50%;
+      position: fixed;
+      top: 0;
+      left: 0;
+      pointer-events: none !important;
+      z-index: 99999;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 10px #00f3ff, 0 0 20px #00f3ff, 0 0 30px rgba(0, 243, 255, 0.6);
+      opacity: 0;
+      transition: opacity 0.25s, background 0.25s, transform 0.25s, box-shadow 0.25s;
+    }
+
+    .qorvhex-cursor-ring {
+      width: 46px;
+      height: 46px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      pointer-events: none !important;
+      z-index: 99998;
+      transform: translate(-50%, -50%);
+      opacity: 0;
+      transition: opacity 0.25s,
+                  width 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.27),
+                  height 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.27);
+    }
+
+    .qorvhex-cursor-ring svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+      pointer-events: none !important;
+    }
+
+    .hex-outer {
+      transform-origin: 30px 30px;
+      animation: qorvhexSpinHex 8s linear infinite;
+      filter: drop-shadow(0 0 5px rgba(0, 243, 255, 0.7));
+      transition: stroke 0.3s, filter 0.3s;
+    }
+
+    .hex-inner {
+      transform-origin: 30px 30px;
+      animation: qorvhexSpinHexRev 5s linear infinite;
+      transition: stroke 0.3s;
+    }
+
+    @keyframes qorvhexSpinHex {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes qorvhexSpinHexRev {
+      0% { transform: rotate(360deg); }
+      100% { transform: rotate(-360deg); }
+    }
+
+    /* حالت هوور کات نئونی سایبرپانک */
+    body.cursor-hover .qorvhex-cursor-dot {
+      background: #ff0055;
+      box-shadow: 0 0 15px #ff0055, 0 0 30px #ff0055;
+      transform: translate(-50%, -50%) scale(1.4);
+    }
+
+    body.cursor-hover .qorvhex-cursor-ring {
+      width: 66px;
+      height: 66px;
+    }
+
+    body.cursor-hover .hex-outer {
+      stroke: #ff0055;
+      stroke-dasharray: 12 2;
+      animation-duration: 2s;
+      filter: drop-shadow(0 0 8px rgba(255, 0, 85, 0.8));
+    }
+
+    body.cursor-hover .hex-inner {
+      stroke: rgba(255, 0, 85, 0.6);
+      animation-duration: 1.5s;
+    }
+
+    /* ==========================================
+       پس‌زمینه ستاره‌ها
+       ========================================== */
+    .container {
+      height: 100vh;
+      width: 100vw;
+      background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
+      overflow: hidden;
+      position: relative;
+    }
+
+    #stars, #stars2, #stars3 {
+      position: absolute;
+      top: 0;
+      left: 0;
+      background: transparent;
+    }
+
+    #stars {
+      width: 1px;
+      height: 1px;
+      animation: animStar 50s linear infinite;
+    }
+    #stars::after {
+      content: " ";
+      position: absolute;
+      top: 2000px;
+      width: 1px;
+      height: 1px;
+      background: transparent;
+    }
+
+    #stars2 {
+      width: 2px;
+      height: 2px;
+      animation: animStar 100s linear infinite;
+    }
+    #stars2::after {
+      content: " ";
+      position: absolute;
+      top: 2000px;
+      width: 2px;
+      height: 2px;
+      background: transparent;
+    }
+
+    #stars3 {
+      width: 3px;
+      height: 3px;
+      animation: animStar 150s linear infinite;
+    }
+    #stars3::after {
+      content: " ";
+      position: absolute;
+      top: 2000px;
+      width: 3px;
+      height: 3px;
+      background: transparent;
+    }
+
+    @keyframes animStar {
+      from { transform: translateY(0px); }
+      to { transform: translateY(-2000px); }
+    }
+
+    /* ==========================================
+       استایل لودر uiverse.io/andrew-manzyk
+       ========================================== */
+    .loader {
+      --color-one: #ffbf48;
+      --color-two: #be4a1d;
+      --color-three: #ffbf4780;
+      --color-four: #bf4a1d80;
+      --color-five: #ffbf4740;
+      --time-animation: 2s;
+      --size: 1;
+      position: relative;
+      border-radius: 50%;
+      transform: scale(var(--size));
+      box-shadow:
+        0 0 25px 0 var(--color-three),
+        0 20px 50px 0 var(--color-four);
+      animation: colorize calc(var(--time-animation) * 3) ease-in-out infinite;
+      width: 100px;
+      height: 100px;
+    }
+
+    .loader::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      border-top: solid 1px var(--color-one);
+      border-bottom: solid 1px var(--color-two);
+      background: linear-gradient(180deg, var(--color-five), var(--color-four));
+      box-shadow:
+        inset 0 10px 10px 0 var(--color-three),
+        inset 0 -10px 10px 0 var(--color-four);
+    }
+
+    .loader .box {
+      width: 100px;
+      height: 100px;
+      background: linear-gradient(
+        180deg,
+        var(--color-one) 30%,
+        var(--color-two) 70%
+      );
+    }
+
+    .loader svg {
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    .loader svg mask {
+      filter: contrast(15);
+      animation: roundness calc(var(--time-animation) / 2) linear infinite;
+    }
+
+    .loader svg mask polygon {
+      filter: blur(7px);
+    }
+
+    .loader svg mask polygon:nth-child(1) {
+      transform-origin: 75% 25%;
+      transform: rotate(90deg);
+    }
+
+    .loader svg mask polygon:nth-child(2) {
+      transform-origin: 50% 50%;
+      animation: rotation var(--time-animation) linear infinite reverse;
+    }
+
+    .loader svg mask polygon:nth-child(3) {
+      transform-origin: 50% 60%;
+      animation: rotation var(--time-animation) linear infinite;
+      animation-delay: calc(var(--time-animation) / -3);
+    }
+
+    .loader svg mask polygon:nth-child(4) {
+      transform-origin: 40% 40%;
+      animation: rotation var(--time-animation) linear infinite reverse;
+    }
+
+    .loader svg mask polygon:nth-child(5) {
+      transform-origin: 40% 40%;
+      animation: rotation var(--time-animation) linear infinite reverse;
+      animation-delay: calc(var(--time-animation) / -2);
+    }
+
+    .loader svg mask polygon:nth-child(6) {
+      transform-origin: 60% 40%;
+      animation: rotation var(--time-animation) linear infinite;
+    }
+
+    .loader svg mask polygon:nth-child(7) {
+      transform-origin: 60% 40%;
+      animation: rotation var(--time-animation) linear infinite;
+      animation-delay: calc(var(--time-animation) / -1.5);
+    }
+
+    @keyframes rotation {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes roundness {
+      0% { filter: contrast(15); }
+      20% { filter: contrast(3); }
+      40% { filter: contrast(3); }
+      60% { filter: contrast(15); }
+      100% { filter: contrast(15); }
+    }
+
+    @keyframes colorize {
+      0% { filter: hue-rotate(0deg); }
+      20% { filter: hue-rotate(-30deg); }
+      40% { filter: hue-rotate(-60deg); }
+      60% { filter: hue-rotate(-90deg); }
+      80% { filter: hue-rotate(-45deg); }
+      100% { filter: hue-rotate(0deg); }
+    }
+
+    /* ==========================================
+       موقعیت‌دهی شناور دایره‌ها و متن
+       ========================================== */
+    .loader-item {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 120px;
+      height: 150px;
+      transform: translate(-50%, -50%) scale(0.7);
+      transition: transform 0.3s ease, filter 0.3s ease;
+      cursor: pointer;
+      z-index: 10;
+      will-change: transform, left, top;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .loader-item:hover {
+      filter: brightness(1.3);
+      transform: translate(-50%, -50%) scale(0.78);
+    }
+
+    .circle-view {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      pointer-events: auto;
+    }
+
+    .circle-label {
+      margin-top: 12px;
+      color: #00f3ff;
+      font-family: 'Arial Black', system-ui, sans-serif;
+      font-weight: 900;
+      font-size: 16px;
+      letter-spacing: 2px;
+      text-shadow: 0 0 10px #00f3ff, 0 0 20px rgba(0, 243, 255, 0.6);
+      white-space: nowrap;
+      text-transform: uppercase;
+      pointer-events: none;
+    }
+
+    /* ==========================================
+       استایل سفینه، پدافند رگباری و پرتابه‌ها
+       ========================================== */
+    .cyber-spaceship-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 20;
+      pointer-events: none;
+      filter: drop-shadow(0 0 30px rgba(0, 243, 255, 0.6));
+      will-change: transform;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .ship-svg-wrapper {
+      transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease;
+      transform-origin: center center;
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .cyber-board {
+      position: relative;
+      width: 0;
+      height: 0;
+      opacity: 0;
+      overflow: hidden;
+      pointer-events: none;
+      transform: perspective(1000px) rotateX(-90deg) scale(0.1);
+      transform-origin: top center;
+      transition: all 0.6s cubic-bezier(0.34, 1.25, 0.64, 1);
+      background: rgba(9, 10, 15, 0.94);
+      border: 1.5px solid #00f3ff;
+      border-radius: 12px;
+      box-shadow: 0 0 30px rgba(0, 243, 255, 0.4), inset 0 0 20px rgba(0, 243, 255, 0.15), 0 0 50px rgba(255, 0, 85, 0.2);
+      backdrop-filter: blur(12px);
+    }
+
+    /* حالت تبدیل شده سفینه به تابلو */
+    .cyber-spaceship-container.transformed .ship-svg-wrapper {
+      opacity: 0;
+      transform: scale(0);
+      pointer-events: none;
+      height: 0;
+      margin: 0;
+      overflow: hidden;
+    }
+
+    .cyber-spaceship-container.transformed .cyber-board {
+      width: 680px;
+      max-width: 92vw;
+      height: 440px;
+      max-height: 54vh;
+      opacity: 1;
+      pointer-events: auto;
+      transform: perspective(1000px) rotateX(0deg) scale(1);
+    }
+
+    .cyber-board-header {
+      position: sticky;
+      top: 0;
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.98) 0%, rgba(9, 10, 15, 0.95) 100%);
+      padding: 10px 18px;
+      border-bottom: 1px solid rgba(0, 243, 255, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 5;
+    }
+
+    .board-title-main {
+      font-family: 'Arial Black', system-ui, sans-serif;
+      font-size: 22px;
+      font-weight: 900;
+      color: #ffffff;
+      letter-spacing: 4px;
+      text-shadow: 0 0 10px #00f3ff, 0 0 20px #00f3ff;
+      text-transform: uppercase;
+      text-align: center;
+      width: 100%;
+    }
+
+    .cyber-board-content {
+      padding: 14px 18px;
+      height: calc(100% - 50px);
+      overflow-y: auto;
+      font-family: system-ui, -apple-system, sans-serif;
+      color: #e2e8f0;
+      font-size: 12.5px;
+      line-height: 1.55;
+    }
+
+    .cyber-board-content::-webkit-scrollbar {
+      width: 5px;
+    }
+    .cyber-board-content::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.4);
+    }
+    .cyber-board-content::-webkit-scrollbar-thumb {
+      background: #00f3ff;
+      border-radius: 3px;
+      box-shadow: 0 0 8px #00f3ff;
+    }
+
+    .section-box {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(0, 243, 255, 0.25);
+      border-left: 3px solid #00f3ff;
+      border-radius: 6px;
+      padding: 10px 12px;
+      margin-bottom: 12px;
+      box-shadow: 0 0 10px rgba(0, 243, 255, 0.05);
+    }
+
+    .section-title {
+      color: #00f3ff;
+      font-family: monospace;
+      font-weight: bold;
+      font-size: 12.5px;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 6px;
+      text-transform: uppercase;
+      text-shadow: 0 0 8px rgba(0, 243, 255, 0.5);
+      direction: ltr;
+      text-align: left;
+    }
+
+    .bullet-list {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .bullet-list li {
+      position: relative;
+      padding-left: 16px;
+      margin-bottom: 5px;
+      color: #cbd5e1;
+    }
+
+    .bullet-list li::before {
+      content: "◈";
+      position: absolute;
+      left: 0;
+      color: #ff0055;
+      font-size: 9px;
+    }
+
+    /* متن هشدار موس */
+    .ship-warning-text {
+      position: absolute;
+      bottom: -32px;
+      left: 50%;
+      transform: translateX(-50%) scale(0.8);
+      background: rgba(255, 0, 85, 0.95);
+      color: #ffffff;
+      font-family: monospace, sans-serif;
+      font-weight: 900;
+      font-size: 13px;
+      letter-spacing: 2px;
+      padding: 4px 14px;
+      border-radius: 6px;
+      border: 1px solid #00f3ff;
+      box-shadow: 0 0 15px #ff0055, 0 0 30px rgba(0, 243, 255, 0.8);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+      white-space: nowrap;
+      text-transform: uppercase;
+    }
+
+    .ship-warning-text.show {
+      opacity: 1;
+      transform: translateX(-50%) scale(1);
+    }
+
+    /* افکت تیر خوردن و انفجار دایره */
+    .hit-flash {
+      animation: hitFlashAnim 0.15s ease-in-out;
+    }
+
+    @keyframes hitFlashAnim {
+      0% { filter: brightness(2) drop-shadow(0 0 20px #ff0055); }
+      100% { filter: brightness(1); }
+    }
+
+    .circle-explosion {
+      position: fixed;
+      width: 120px;
+      height: 120px;
+      pointer-events: none !important;
+      z-index: 96000;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      background: radial-gradient(circle, #ffffff 0%, #ff0055 45%, #00f3ff 75%, transparent 100%);
+      box-shadow: 0 0 30px #ff0055, 0 0 60px #00f3ff, inset 0 0 20px #ffffff;
+      animation: circleExplodeAnim 0.45s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+    }
+
+    @keyframes circleExplodeAnim {
+      0% { transform: translate(-50%, -50%) scale(0.2); opacity: 1; filter: brightness(2.5); }
+      50% { transform: translate(-50%, -50%) scale(1.6); opacity: 0.9; }
+      100% { transform: translate(-50%, -50%) scale(2.6); opacity: 0; }
+    }
+
+    /* تیرهای رگباری پدافند */
+    .aa-bullet {
+      position: fixed;
+      pointer-events: none !important;
+      z-index: 95000;
+      height: 3px;
+      width: 28px;
+      border-radius: 2px;
+      transform-origin: 0 50%;
+      will-change: transform, opacity;
+    }
+
+    .aa-impact {
+      position: fixed;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #ffffff 0%, #ff0055 60%, transparent 100%);
+      box-shadow: 0 0 15px #ff0055, 0 0 25px #00f3ff;
+      pointer-events: none !important;
+      z-index: 95001;
+      transform: translate(-50%, -50%) scale(0.3);
+      animation: aaImpactAnim 0.25s ease-out forwards;
+    }
+
+    @keyframes aaImpactAnim {
+      0% { transform: translate(-50%, -50%) scale(0.3); opacity: 1; }
+      100% { transform: translate(-50%, -50%) scale(1.6); opacity: 0; }
+    }
+
+    /* تنظیمات موبایل */
+    @media (max-width: 768px), (pointer: coarse) {
+      * {
+        cursor: auto !important;
+      }
+      .qorvhex-cursor-dot,
+      .qorvhex-cursor-ring {
+        display: none !important;
+      }
+      .cyber-spaceship-container svg {
+        width: 170px;
+        height: auto;
+      }
+      .ship-warning-text {
+        font-size: 10px;
+        padding: 2px 8px;
+        bottom: -22px;
+      }
+    }
+
+    /* دکمه Surprise */
+    .gradient-button {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      z-index: 99990;
+      padding: 16px 32px;
+      font-size: 18px;
+      font-weight: bold;
+      color: white;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      border-radius: 50px;
+      overflow: hidden;
+      transition: transform 0.2s ease, opacity 0.3s ease;
+      transform: translateX(-50%);
+      pointer-events: auto;
+      opacity: 1;
+    }
+
+    .gradient-button:hover {
+      transform: translateX(-50%) scale(1.03);
+    }
+
+    .gradient-button::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: conic-gradient(
+        from 0deg,
+        #ff6b6b,
+        #4ecdc4,
+        #45b7d1,
+        #96ceb4,
+        #feca57,
+        #ff9ff3,
+        #ff6b6b
+      );
+      z-index: -2;
+      filter: blur(10px);
+      transform: rotate(0deg);
+      transition: transform 1.5s ease-in-out;
+    }
+
+    .gradient-button:hover::before {
+      transform: rotate(180deg);
+    }
+
+    .gradient-button::after {
+      content: "";
+      position: absolute;
+      inset: 3px;
+      background: black;
+      border-radius: 47px;
+      z-index: -1;
+      filter: blur(5px);
+    }
+
+    .gradient-text {
+      color: transparent;
+      background: conic-gradient(
+        from 0deg,
+        #ff6b6b,
+        #4ecdc4,
+        #45b7d1,
+        #96ceb4,
+        #feca57,
+        #ff9ff3,
+        #ff6b6b
+      );
+      background-clip: text;
+      filter: hue-rotate(0deg);
+    }
+
+    .gradient-button:hover .gradient-text {
+      animation: hue-rotating 2s linear infinite;
+    }
+
+    .gradient-button:active {
+      transform: translateX(-50%) scale(0.99);
+    }
+
+    @keyframes hue-rotating {
+      to {
+        filter: hue-rotate(360deg);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- عناصر نشانگر موس سایبرپانک Core + Hex -->
+  <div class="qorvhex-cursor-dot" id="cursorDot"></div>
+  <div class="qorvhex-cursor-ring" id="cursorRing">
+    <svg viewBox="0 0 60 60" width="46" height="46">
+      <polygon class="hex-inner" points="30,12 45.6,21 45.6,39 30,48 14.4,39 14.4,21" fill="none" stroke="rgba(0, 243, 255, 0.45)" stroke-width="1.2"></polygon>
+      <polygon class="hex-outer" points="30,4 52.5,17 52.5,43 30,56 7.5,43 7.5,17" fill="none" stroke="#00f3ff" stroke-width="1.8" stroke-dasharray="9 4"></polygon>
+    </svg>
+  </div>
+
+  <!-- دکمه Surprise -->
+  <button class="gradient-button" id="toggleBtn">
+    <span class="gradient-text">Surprise</span>
+  </button>
+
+  <div class="container" id="container">
+    <div id="stars"></div>
+    <div id="stars2"></div>
+    <div id="stars3"></div>
+
+    <!-- سفینه فضایی سایبرپانک QORVHEX -->
+    <div class="cyber-spaceship-container transformed" id="spaceship">
+      <div class="ship-svg-wrapper">
+        <svg width="300" height="130" viewBox="0 0 360 150" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="shipBodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#0f172a"/>
+              <stop offset="50%" stop-color="#1e1b4b"/>
+              <stop offset="100%" stop-color="#090a0f"/>
+            </linearGradient>
+            <filter id="neonGlow" x="-30%" y="-30%" width="160%" height="160%">
+              <feGaussianBlur stdDeviation="3.5" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+            <filter id="textGlow" x="-20%" y="-20%" width="140%" height="140%">
+              <feDropShadow dx="0" dy="0" stdDeviation="4" flood-color="#00f3ff" flood-opacity="1"/>
+              <feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="#00f3ff" flood-opacity="0.6"/>
+            </filter>
+          </defs>
+
+          <!-- شعله‌های موتور -->
+          <polygon points="130,5 110,22 130,16" fill="#00f3ff" filter="url(#neonGlow)">
+            <animate attributeName="opacity" values="0.4;1;0.4" dur="0.15s" repeatCount="indefinite"/>
+          </polygon>
+          <polygon points="230,5 250,22 230,16" fill="#00f3ff" filter="url(#neonGlow)">
+            <animate attributeName="opacity" values="0.4;1;0.4" dur="0.2s" repeatCount="indefinite"/>
+          </polygon>
+
+          <!-- بدنه اصلی و بال‌ها -->
+          <path d="M 180 145 L 255 75 L 345 65 L 295 40 L 220 35 L 180 10 L 140 35 L 65 40 L 15 65 L 105 75 Z" fill="url(#shipBodyGrad)" stroke="#00f3ff" stroke-width="2" filter="url(#neonGlow)"/>
+          <path d="M 180 135 L 230 80 L 285 70 L 180 30 L 75 70 L 130 80 Z" fill="#0b0f19" stroke="#ff0055" stroke-width="1.5" />
+
+          <!-- قاب زیرین مشکی نئونی -->
+          <rect x="70" y="52" width="220" height="42" rx="8" fill="#030712" stroke="#00f3ff" stroke-width="2" filter="url(#textGlow)"/>
+
+          <!-- متن QORVHEX -->
+          <text x="180" y="80" fill="#ffffff" font-family="'Arial Black', system-ui, sans-serif" font-weight="900" font-size="23" letter-spacing="4" text-anchor="middle" filter="url(#textGlow)">QORVHEX</text>
+          <text x="180" y="99" fill="#00f3ff" font-family="sans-serif" font-weight="bold" font-size="9" letter-spacing="3" text-anchor="middle">CYBER WARSHIP</text>
+
+          <!-- توپ‌های پدافند -->
+          <rect x="18" y="58" width="6" height="30" rx="3" fill="#00f3ff" filter="url(#neonGlow)"/>
+          <rect x="336" y="58" width="6" height="30" rx="3" fill="#00f3ff" filter="url(#neonGlow)"/>
+          <circle cx="21" cy="90" r="4" fill="#ff0055" filter="url(#neonGlow)"/>
+          <circle cx="339" cy="90" r="4" fill="#ff0055" filter="url(#neonGlow)"/>
+        </svg>
+      </div>
+
+      <!-- تابلو باز شونده تبدیل شوندگان (Transformers Board) -->
+      <div class="cyber-board" id="cyberBoard">
+        <div class="cyber-board-header">
+          <div class="board-title-main">QORVHEX</div>
+        </div>
+        <div class="cyber-board-content">
+          <!-- PROFILE OVERVIEW -->
+          <div class="section-box">
+            <div class="section-title">👁️‍🗨️ [ PROFILE_OVERVIEW ]</div>
+            <p style="color: #cbd5e1; text-align: justify; direction: ltr; font-family: monospace;">
+              Independent systems operative and full-stack architect specializing in edge computing, secure routing protocols, and AI-driven automation. Adept at navigating complex cloud infrastructures, engineering obfuscated systems, and deploying autonomous agents. Proven track record in forging resilient digital environments, optimizing network packet structures, and designing secure, untraceable data pipelines.
+            </p>
+          </div>
+
+          <!-- CORE DIRECTIVES & PROTOCOLS -->
+          <div class="section-box">
+            <div class="section-title">⚙️ [ CORE_DIRECTIVES &amp; PROTOCOLS ]</div>
+            <ul class="bullet-list" style="direction: ltr; font-family: monospace;">
+              <li><strong>☁️ Edge &amp; Cloud Architecture:</strong> Cloudflare Workers, D1 (Edge SQL), KV Storage, Orchestrator Functions.</li>
+              <li><strong>🛡️ Security &amp; Network:</strong> Secure Tunneling Architecture, Traffic Encapsulation, Advanced Code Obfuscation, Packet Structure Analysis.</li>
+              <li><strong>🤖 Autonomous Systems:</strong> AI Agent Integration, Deep Prompt Engineering, Automated Bot Networks (Telegram).</li>
+              <li><strong>💻 Interface &amp; Logic:</strong> JavaScript, WordPress, Programmatic SVG Generation, Custom File-Upload Workflows.</li>
+            </ul>
+          </div>
+
+          <!-- SYSTEM LOG : FIELD EXPERIENCE -->
+          <div class="section-box">
+            <div class="section-title">📂 [ SYSTEM_LOG : FIELD EXPERIENCE ]</div>
+
+            <div style="margin-bottom: 12px; direction: ltr; font-family: monospace;">
+              <div style="color: #ff0055; font-weight: bold; font-size: 13px;">🕶️ Independent Network Operative | [Year] – Present</div>
+              <ul class="bullet-list" style="margin-top: 6px;">
+                <li><strong>⚡ Edge Infrastructure:</strong> Engineered serverless backend solutions utilizing Cloudflare Workers, integrating D1 and KV for distributed, ultra-low-latency data persistence across global nodes.</li>
+                <li><strong>🕸️ Secure Communications &amp; Routing:</strong> Architected encrypted routing protocols and custom secure tunnels for untraceable data traversal. Resolved critical interface stability issues and optimized mobile hardware connectivity.</li>
+                <li><strong>🧠 AI &amp; Automation Deployment:</strong> Programmed and deployed autonomous Telegram operatives powered by integrated AI agents. Utilized rigorous prompt engineering to dictate complex, logic-driven machine behaviors.</li>
+                <li><strong>🎨 Digital Interface Forging:</strong> Constructed high-performance web frameworks using JavaScript and WordPress. Engineered scalable, programmatic SVG graphics directly through code rather than traditional rendering software.</li>
+                <li><strong>🔒 System Defense:</strong> Applied sophisticated code obfuscation techniques to mask proprietary logic and defend critical application components against reverse-engineering attempts.</li>
+              </ul>
+            </div>
+
+            <div style="direction: ltr; font-family: monospace;">
+              <div style="color: #ff0055; font-weight: bold; font-size: 13px;">🏢 Corporate Entity | Contracted Systems Specialist (5 Months)</div>
+              <ul class="bullet-list" style="margin-top: 6px;">
+                <li><strong>🔄 Workflow &amp; Architecture:</strong> Designed and deployed full-stack applications, implementing custom file-upload workflows and orchestrator functions to streamline internal data operations.</li>
+                <li><strong>📡 Network Optimization:</strong> Analyzed and optimized network packet structures to enhance overall connectivity and system stability during a targeted 3-month probationary phase and subsequent 2-month operational contract.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- متن هشدار موس -->
+      <div class="ship-warning-text" id="shipWarningText">Don't Touch Me! ⚡</div>
+    </div>
+  </div>
+
+  <script>
+    // 1. پس‌زمینه ستاره‌ای
+    function generateStarField(elementId, count) {
+      const elem = document.getElementById(elementId);
+      if (!elem) return;
+      let shadows = [];
+      for (let i = 0; i < count; i++) {
+        const x = Math.floor(Math.random() * 2000);
+        const y = Math.floor(Math.random() * 2000);
+        shadows.push(`${x}px ${y}px #FFF`);
+      }
+      const shadowString = shadows.join(', ');
+      elem.style.boxShadow = shadowString;
+
+      const styleTag = document.createElement('style');
+      styleTag.innerHTML = `#${elementId}::after { box-shadow: ${shadowString}; }`;
+      document.head.appendChild(styleTag);
+    }
+
+    generateStarField('stars', 500);
+    generateStarField('stars2', 200);
+    generateStarField('stars3', 100);
+
+    // 2. دایره‌های شناور
+    const container = document.getElementById('container');
+    const itemsConfig = [
+      { label: 'Github', url: 'https://github.com/Qorvhex' },
+      { label: 'LinkedIn', url: 'https://www.linkedin.com/in/qorvhex' },
+      { label: 'Telegram', url: 'https://t.me/Qorvhex_Channel' }
+    ];
+    const totalPoints = itemsConfig.length;
+    const nodes = [];
+
+    for (let i = 0; i < totalPoints; i++) {
+      const loaderItem = document.createElement('div');
+      loaderItem.className = 'loader-item';
+      const maskId = `clipping-${i}`;
+
+      loaderItem.innerHTML = `
+        <div class="circle-view">
+          <div class="loader">
+            <svg width="100" height="100" viewBox="0 0 100 100">
+              <defs>
+                <mask id="${maskId}">
+                  <polygon points="0,0 100,0 100,100 0,100" fill="black"></polygon>
+                  <polygon points="25,25 75,25 50,75" fill="white"></polygon>
+                  <polygon points="50,25 75,75 25,75" fill="white"></polygon>
+                  <polygon points="35,35 65,35 50,65" fill="white"></polygon>
+                  <polygon points="35,35 65,35 50,65" fill="white"></polygon>
+                  <polygon points="35,35 65,35 50,65" fill="white"></polygon>
+                  <polygon points="35,35 65,35 50,65" fill="white"></polygon>
+                </mask>
+              </defs>
+            </svg>
+            <div class="box" style="mask: url(#${maskId}); -webkit-mask: url(#${maskId});"></div>
+          </div>
+          <div class="circle-label">${itemsConfig[i].label}</div>
+        </div>
+      `;
+
+      const spacing = 150;
+      const startX = (window.innerWidth / 2) - ((totalPoints - 1) * spacing) / 2;
+      let x = startX + i * spacing;
+      let y = window.innerHeight / 2 + 70;
+
+      const node = {
+        element: loaderItem,
+        x: x,
+        y: y,
+        vx: (Math.random() - 0.5) * 0.6,
+        vy: (Math.random() - 0.5) * 0.6,
+        radius: 40,
+        hp: 10,
+        maxHp: 10,
+        isDestroyed: false,
+        index: i
+      };
+
+      loaderItem.addEventListener('click', (e) => {
+        e.stopPropagation();
+        window.open(itemsConfig[i].url, '_blank');
+      });
+
+      nodes.push(node);
+      container.appendChild(loaderItem);
+    }
+
+    // 3. موتور فیزیک، گشت‌زنی سفینه و شلیک پدافند
+    const spaceship = document.getElementById('spaceship');
+    const warningElem = document.getElementById('shipWarningText');
+    const shipWrapper = document.querySelector('.ship-svg-wrapper');
+
+    let shipPos = { x: window.innerWidth / 2, y: window.innerHeight / 2 - 70 };
+    let shipTarget = { x: window.innerWidth / 2, y: window.innerHeight / 2 - 70 };
+    let shipAngle = 0;
+    let lastAABarrageTime = 0;
+    let useLeftCannon = true;
+    let isFormedUp = true;
+
+    // رویداد نمایش هشدار موس روی سفینه
+    if (shipWrapper && warningElem) {
+      shipWrapper.addEventListener('mouseenter', () => {
+        if (!isFormedUp) warningElem.classList.add('show');
+      });
+      shipWrapper.addEventListener('mouseleave', () => {
+        warningElem.classList.remove('show');
+      });
+    }
+
+    const toggleBtn = document.getElementById('toggleBtn');
+    if (toggleBtn) {
+      toggleBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        isFormedUp = !isFormedUp;
+
+        if (isFormedUp) {
+          nodes.forEach((node) => {
+            if (node.isDestroyed) {
+              node.isDestroyed = false;
+              node.hp = node.maxHp;
+
+              node.element.style.pointerEvents = 'auto';
+              node.element.style.transition = 'none';
+              node.element.style.transform = 'translate(-50%, -50%) scale(0)';
+              node.element.style.opacity = '0';
+
+              const totalNodes = nodes.length;
+              const spacing = 150;
+              const startX = (window.innerWidth / 2) - ((totalNodes - 1) * spacing) / 2;
+              node.x = startX + node.index * spacing;
+              node.y = Math.min(window.innerHeight - 60, window.innerHeight / 2 + 235);
+              node.element.style.left = `${node.x}px`;
+              node.element.style.top = `${node.y}px`;
+
+              requestAnimationFrame(() => {
+                setTimeout(() => {
+                  node.element.style.transition = 'transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.27), opacity 0.5s ease';
+                  node.element.style.transform = 'translate(-50%, -50%) scale(0.7)';
+                  node.element.style.opacity = '1';
+                }, 60 * node.index);
+              });
+            }
+          });
+        } else {
+          pickNewShipTarget();
+        }
+      });
+    }
+
+    function pickNewShipTarget() {
+      if (isFormedUp) return;
+      const margin = 120;
+      shipTarget.x = margin + Math.random() * (window.innerWidth - margin * 2);
+      shipTarget.y = margin + Math.random() * (window.innerHeight - margin * 2);
+    }
+    setInterval(pickNewShipTarget, 3500);
+
+    function animatePhysics() {
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+
+      if (isFormedUp) {
+        const targetShipX = width / 2;
+        const targetShipY = height / 2 - 30;
+
+        shipPos.x += (targetShipX - shipPos.x) * 0.08;
+        shipPos.y += (targetShipY - shipPos.y) * 0.08;
+
+        let angleDiff = 0 - shipAngle;
+        while (angleDiff < -Math.PI) angleDiff += Math.PI * 2;
+        while (angleDiff > Math.PI) angleDiff -= Math.PI * 2;
+        shipAngle += angleDiff * 0.08;
+
+        if (spaceship) {
+          spaceship.style.transform = `translate(${shipPos.x}px, ${shipPos.y}px) translate(-50%, -50%) rotate(${shipAngle}rad)`;
+          spaceship.classList.add('transformed');
+        }
+
+        if (warningElem) warningElem.classList.remove('show');
+
+        const totalNodes = nodes.length;
+        const spacing = 150;
+        const startX = (width / 2) - ((totalNodes - 1) * spacing) / 2;
+        const targetLineY = Math.min(height - 60, height / 2 + 235);
+
+        nodes.forEach((node, index) => {
+          const targetX = startX + index * spacing;
+          node.x += (targetX - node.x) * 0.08;
+          node.y += (targetLineY - node.y) * 0.08;
+          node.vx = 0;
+          node.vy = 0;
+
+          node.element.style.left = `${node.x}px`;
+          node.element.style.top = `${node.y}px`;
+        });
+
+      } else {
+        if (spaceship) spaceship.classList.remove('transformed');
+
+        const shipSpeed = 0.015;
+        const dxShip = shipTarget.x - shipPos.x;
+        const dyShip = shipTarget.y - shipPos.y;
+
+        shipPos.x += dxShip * shipSpeed;
+        shipPos.y += dyShip * shipSpeed;
+
+        if (Math.hypot(dxShip, dyShip) > 10) {
+          let targetAngle = Math.atan2(dyShip, dxShip) - Math.PI / 2;
+          let angleDiff = targetAngle - shipAngle;
+          while (angleDiff < -Math.PI) angleDiff += Math.PI * 2;
+          while (angleDiff > Math.PI) angleDiff -= Math.PI * 2;
+          shipAngle += angleDiff * 0.05;
+        }
+
+        if (spaceship) {
+          spaceship.style.transform = `translate(${shipPos.x}px, ${shipPos.y}px) translate(-50%, -50%) rotate(${shipAngle}rad)`;
+        }
+
+        let closestNode = null;
+        let minDist = Infinity;
+
+        nodes.forEach(node => {
+          if (!node.isDestroyed) {
+            const dist = Math.hypot(node.x - shipPos.x, node.y - shipPos.y);
+            if (dist < minDist) {
+              minDist = dist;
+              closestNode = node;
+            }
+          }
+        });
+
+        if (closestNode) {
+          shipTarget.x = closestNode.x;
+          shipTarget.y = closestNode.y;
+
+          if (minDist < 500) {
+            const now = Date.now();
+            if (now - lastAABarrageTime > 90) {
+              fireAABarrageAtNode(closestNode);
+              lastAABarrageTime = now;
+            }
+          }
+        }
+
+        nodes.forEach(node => {
+          if (node.isDestroyed) return;
+
+          const wallMargin = 220;
+          const distLeft = node.x;
+          const distRight = width - node.x;
+          const distTop = node.y;
+          const distBottom = height - node.y;
+          const minWallDist = Math.min(distLeft, distRight, distTop, distBottom);
+
+          let wallFx = 0;
+          let wallFy = 0;
+          if (distLeft < wallMargin) wallFx += Math.pow((wallMargin - distLeft) / wallMargin, 1.5) * 4.0;
+          if (distRight < wallMargin) wallFx -= Math.pow((wallMargin - distRight) / wallMargin, 1.5) * 4.0;
+          if (distTop < wallMargin) wallFy += Math.pow((wallMargin - distTop) / wallMargin, 1.5) * 4.0;
+          if (distBottom < wallMargin) wallFy -= Math.pow((wallMargin - distBottom) / wallMargin, 1.5) * 4.0;
+
+          const distToShipX = node.x - shipPos.x;
+          const distToShipY = node.y - shipPos.y;
+          const distToShip = Math.hypot(distToShipX, distToShipY);
+          const fleeDistance = 520;
+
+          let currentMaxSpeed = 5.0;
+
+          if (distToShip < fleeDistance && distToShip > 0) {
+            const panicFactor = (fleeDistance - distToShip) / fleeDistance;
+            const rx = distToShipX / distToShip;
+            const ry = distToShipY / distToShip;
+
+            const t1x = -ry, t1y = rx;
+            const t2x = ry, t2y = -rx;
+
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const dist1 = Math.hypot((node.x + t1x * 100) - centerX, (node.y + t1y * 100) - centerY);
+            const dist2 = Math.hypot((node.x + t2x * 100) - centerX, (node.y + t2y * 100) - centerY);
+
+            const bestTx = dist1 < dist2 ? t1x : t2x;
+            const bestTy = dist1 < dist2 ? t1y : t2y;
+
+            let blendTangential = 0.3;
+            if (minWallDist < 280) blendTangential = 0.3 + (1 - minWallDist / 280) * 0.7;
+
+            let dirX = rx * (1 - blendTangential * 0.7) + bestTx * blendTangential + wallFx * 0.8;
+            let dirY = ry * (1 - blendTangential * 0.7) + bestTy * blendTangential + wallFy * 0.8;
+
+            const dirLen = Math.hypot(dirX, dirY) || 1;
+            dirX /= dirLen;
+            dirY /= dirLen;
+
+            const fleeForce = panicFactor * 7.0;
+            node.vx += dirX * fleeForce + (Math.random() - 0.5) * 2.5;
+            node.vy += dirY * fleeForce + (Math.random() - 0.5) * 2.5;
+
+            currentMaxSpeed = 6.0 + panicFactor * 14.0;
+          } else if (minWallDist < 120) {
+            node.vx += wallFx * 1.5;
+            node.vy += wallFy * 1.5;
+          } else {
+            node.vx += (Math.random() - 0.5) * 0.2;
+            node.vy += (Math.random() - 0.5) * 0.2;
+          }
+
+          const speed = Math.hypot(node.vx, node.vy);
+          const minSpeed = 0.8;
+
+          if (speed > currentMaxSpeed) {
+            node.vx = (node.vx / speed) * currentMaxSpeed;
+            node.vy = (node.vy / speed) * currentMaxSpeed;
+          } else if (speed < minSpeed && speed > 0) {
+            node.vx = (node.vx / speed) * minSpeed;
+            node.vy = (node.vy / speed) * minSpeed;
+          }
+
+          node.vx *= 0.96;
+          node.vy *= 0.96;
+
+          node.x += node.vx;
+          node.y += node.vy;
+
+          if (node.x - node.radius < 0) {
+            node.x = node.radius;
+            node.vx = Math.abs(node.vx) * 1.2;
+          } else if (node.x + node.radius > width) {
+            node.x = width - node.radius;
+            node.vx = -Math.abs(node.vx) * 1.2;
+          }
+
+          if (node.y - node.radius < 0) {
+            node.y = node.radius;
+            node.vy = Math.abs(node.vy) * 1.2;
+          } else if (node.y + node.radius > height) {
+            node.y = height - node.radius;
+            node.vy = -Math.abs(node.vy) * 1.2;
+          }
+        });
+
+        // عدم برخورد دایره‌ها با یکدیگر
+        for (let i = 0; i < nodes.length; i++) {
+          for (let j = i + 1; j < nodes.length; j++) {
+            const n1 = nodes[i];
+            const n2 = nodes[j];
+            if (n1.isDestroyed || n2.isDestroyed) continue;
+
+            const dx = n2.x - n1.x;
+            const dy = n2.y - n1.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            const minDistance = n1.radius + n2.radius + 10;
+
+            if (distance < minDistance && distance > 0) {
+              const overlap = minDistance - distance;
+              const nx = dx / distance;
+              const ny = dy / distance;
+
+              n1.x -= nx * (overlap / 2);
+              n1.y -= ny * (overlap / 2);
+              n2.x += nx * (overlap / 2);
+              n2.y += ny * (overlap / 2);
+
+              const kx = n1.vx - n2.vx;
+              const ky = n1.vy - n2.vy;
+              const p = 2 * (nx * kx + ny * ky) / 2;
+
+              n1.vx -= p * nx;
+              n1.vy -= p * ny;
+              n2.vx += p * nx;
+              n2.vy += p * ny;
+            }
+          }
+        }
+
+        nodes.forEach(node => {
+          if (!node.isDestroyed) {
+            node.element.style.left = `${node.x}px`;
+            node.element.style.top = `${node.y}px`;
+          }
+        });
+      }
+
+      requestAnimationFrame(animatePhysics);
+    }
+
+    requestAnimationFrame(animatePhysics);
+
+    // 4. نشانگر موس سایبرپانک
+    const cursorDot = document.getElementById('cursorDot');
+    const cursorRing = document.getElementById('cursorRing');
+
+    let mouseX = window.innerWidth / 2;
+    let mouseY = window.innerHeight / 2;
+    let ringX = mouseX;
+    let ringY = mouseY;
+    let hasMoved = false;
+
+    document.addEventListener('mousemove', (e) => {
+      if (!hasMoved) {
+        hasMoved = true;
+        ringX = e.clientX;
+        ringY = e.clientY;
+        cursorDot.style.opacity = '1';
+        cursorRing.style.opacity = '1';
+      }
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      cursorDot.style.left = `${mouseX}px`;
+      cursorDot.style.top = `${mouseY}px`;
+    });
+
+    document.addEventListener('mouseleave', () => {
+      hasMoved = false;
+      cursorDot.style.opacity = '0';
+      cursorRing.style.opacity = '0';
+    });
+
+    function renderCursor() {
+      ringX += (mouseX - ringX) * 0.18;
+      ringY += (mouseY - ringY) * 0.18;
+
+      cursorRing.style.left = `${ringX}px`;
+      cursorRing.style.top = `${ringY}px`;
+
+      requestAnimationFrame(renderCursor);
+    }
+    requestAnimationFrame(renderCursor);
+
+    document.addEventListener('mouseover', (e) => {
+      if (e.target.closest('.loader-item, #toggleBtn, .cyber-board')) {
+        document.body.classList.add('cursor-hover');
+      }
+    });
+
+    document.addEventListener('mouseout', (e) => {
+      if (e.target.closest('.loader-item, #toggleBtn, .cyber-board')) {
+        document.body.classList.remove('cursor-hover');
+      }
+    });
+
+    // 5. شلیک تیرهای پدافند
+    function fireAABarrageAtNode(targetNode) {
+      if (!spaceship || !targetNode || targetNode.isDestroyed) return;
+
+      const shipSvg = spaceship.querySelector('svg');
+      const currentWidth = shipSvg ? shipSvg.getBoundingClientRect().width : 300;
+      const scale = currentWidth / 360;
+      const localX = (useLeftCannon ? -132.5 : 132.5) * scale;
+      const localY = 15 * scale;
+
+      const cos = Math.cos(shipAngle);
+      const sin = Math.sin(shipAngle);
+
+      const originX = shipPos.x + (localX * cos - localY * sin);
+      const originY = shipPos.y + (localX * sin + localY * cos);
+
+      const isCurrentLeft = useLeftCannon;
+      useLeftCannon = !useLeftCannon;
+
+      const spread = 35;
+      const targetX = targetNode.x + (Math.random() - 0.5) * spread;
+      const targetY = targetNode.y + (Math.random() - 0.5) * spread;
+
+      const deltaX = targetX - originX;
+      const deltaY = targetY - originY;
+      const distance = Math.hypot(deltaX, deltaY);
+      const angle = Math.atan2(deltaY, deltaX);
+
+      const bullet = document.createElement('div');
+      bullet.className = 'aa-bullet';
+
+      if (isCurrentLeft) {
+        bullet.style.background = 'linear-gradient(90deg, transparent, #00f3ff, #ffffff)';
+        bullet.style.boxShadow = '0 0 10px #00f3ff, 0 0 18px #00f3ff';
+      } else {
+        bullet.style.background = 'linear-gradient(90deg, transparent, #ff0055, #ffffff)';
+        bullet.style.boxShadow = '0 0 10px #ff0055, 0 0 18px #ff0055';
+      }
+
+      bullet.style.left = `${originX}px`;
+      bullet.style.top = `${originY}px`;
+      document.body.appendChild(bullet);
+
+      const travelDuration = Math.min(180, Math.max(80, distance * 0.3));
+
+      bullet.animate([
+        { transform: `rotate(${angle}rad) translateX(0px)`, opacity: 1 },
+        { transform: `rotate(${angle}rad) translateX(${distance}px)`, opacity: 1 }
+      ], {
+        duration: travelDuration,
+        easing: 'linear',
+        fill: 'forwards'
+      });
+
+      setTimeout(() => {
+        bullet.remove();
+        if (targetNode.isDestroyed) return;
+
+        const impact = document.createElement('div');
+        impact.className = 'aa-impact';
+        impact.style.left = `${targetX}px`;
+        impact.style.top = `${targetY}px`;
+        document.body.appendChild(impact);
+        setTimeout(() => impact.remove(), 200);
+
+        targetNode.element.classList.add('hit-flash');
+        setTimeout(() => targetNode.element.classList.remove('hit-flash'), 150);
+
+        const pushForce = 7;
+        targetNode.vx += Math.cos(angle) * pushForce;
+        targetNode.vy += Math.sin(angle) * pushForce;
+
+        targetNode.hp--;
+
+        if (targetNode.hp <= 0 && !targetNode.isDestroyed) {
+          targetNode.isDestroyed = true;
+
+          const exp = document.createElement('div');
+          exp.className = 'circle-explosion';
+          exp.style.left = `${targetNode.x}px`;
+          exp.style.top = `${targetNode.y}px`;
+          document.body.appendChild(exp);
+          setTimeout(() => exp.remove(), 450);
+
+          targetNode.element.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
+          targetNode.element.style.transform = 'translate(-50%, -50%) scale(0)';
+          targetNode.element.style.opacity = '0';
+          targetNode.element.style.pointerEvents = 'none';
+        }
+      }, travelDuration);
+    }
+  </script>
+</body>
+</html>
