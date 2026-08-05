@@ -9,7 +9,6 @@
 ![status](https://img.shields.io/badge/STATUS-ONLINE-00ff9f?style=for-the-badge&labelColor=0d1117)
 ![mode](https://img.shields.io/badge/MODE-DARK_ONLY-8b5cf6?style=for-the-badge&labelColor=0d1117)
 ![focus](https://img.shields.io/badge/FOCUS-EDGE_%26_OBFUSCATION-00ff9f?style=for-the-badge&labelColor=0d1117)
-![visitors](https://komarev.com/ghpvc/?username=Qorvhex&style=for-the-badge&color=00ff9f&label=VISITORS)
 
 </div>
 
@@ -74,7 +73,7 @@ $ cat motto.txt
 
 <div align="center">
 
-<img src="https://streak-stats.demolab.com?user=Qorvhex&theme=chartreuse-dark&hide_border=true&background=0d1117&ring=00ff9f&fire=8b5cf6&currStreakLabel=00ff9f" alt="streak" />
+<img src="./assets/streak-stats.svg" alt="streak" />
 
 <img src="https://github-readme-activity-graph.vercel.app/graph?username=Qorvhex&theme=react-dark&bg_color=0d1117&color=00ff9f&line=8b5cf6&point=ffffff&hide_border=true&area=true" alt="activity graph" />
 
