@@ -75,8 +75,6 @@ $ cat motto.txt
 
 <img src="./assets/streak-stats.svg" alt="streak" />
 
-<img src="https://github-readme-activity-graph.vercel.app/graph?username=Qorvhex&theme=react-dark&bg_color=0d1117&color=00ff9f&line=8b5cf6&point=ffffff&hide_border=true&area=true" alt="activity graph" />
-
 </div>
 
 ---
